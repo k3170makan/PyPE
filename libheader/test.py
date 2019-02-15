@@ -44,3 +44,4 @@ if __name__ == "__main__":
 		field_count += 1
 	dos_header = DOSHeader.DOSHeader()
 	dos_header.build_from_binary(_filename=args.file)
+	print("[*] getting e_lfanew :=> %s " % (hex((dos_header.get_e_lfanew()[1]))[:4]))

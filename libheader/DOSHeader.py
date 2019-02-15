@@ -70,10 +70,10 @@ class DOSHeader:
 		self.header_fields = DOSHeader.__DOSHeader_fields  
 		self.header_fmt_dict = DOSHeader.__DOSHeader_fmt_dict
 	def get_e_lfanew(self):
-		lfanew_index = self.header_fields.indexof("e_lfanew") #17 should be 17
+		lfanew_index = self.header_fields.index("e_lfanew") #17 should be 17
 		return self.attribute_list[lfanew_index]
 	def get_e_magic(self):
-		e_magic_index = self.header_fields.indexof("e_magic") #1 duh	
+		e_magic_index = self.header_fields.index("e_magic") #1 duh	
 
 	"""
 		Parse out a DOSHeader.attribute_list straight from a binary file
