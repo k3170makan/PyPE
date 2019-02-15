@@ -1,0 +1,16 @@
+Image only, Windows CE, and Microsoft Windows NT and later. This indicates that the file does not contain base relocations and must therefore be loaded at its preferred base address. If the base address is not available, the loader reports an error. The default behavior of the linker is to strip base relocations from executable (EXE) files. 
+Image only. This indicates that the image file is valid and can be run. If this flag is not set, it indicates a linker error. 
+COFF line numbers have been removed. This flag is deprecated and should be zero. 
+COFF symbol table entries for local symbols have been removed. This flag is deprecated and should be zero. 
+Obsolete. Aggressively trim working set. This flag is deprecated for Windows 2000 and later and must be zero. 
+Application can handle > 2-GB addresses. 
+This flag is reserved for future use. 
+Little endian: the least significant bit (LSB) precedes the most significant bit (MSB) in memory. This flag is deprecated and should be zero. 
+Machine is based on a 32-bit-word architecture. 
+Debugging information is removed from the image file. 
+If the image is on removable media, fully load it and copy it to the swap file. 
+If the image is on network media, fully load it and copy it to the swap file. 
+The image file is a system file, not a user program. 
+The image file is a dynamic-link library (DLL). Such files are considered executable files for almost all purposes, although they cannot be directly run. 
+The file should be run only on a uniprocessor machine. 
+Big endian: the MSB precedes the LSB in memory. This flag is deprecated and should be zero. 
