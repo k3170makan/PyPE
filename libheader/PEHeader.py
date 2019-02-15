@@ -5,7 +5,7 @@ import argparse
 import struct
 import DOSHeaderDecoder
 
-class DEHeader:
+class PEHeader:
 	__PEHeader_fmt_dict = {\
 							"Signature":"I",\
 							"Machine":"I",\
