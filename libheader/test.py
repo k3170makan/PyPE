@@ -4,8 +4,6 @@ import sys
 import argparse
 import struct
 import DOSHeader
-
-#old copy of some code that whips up parser and decoder objects
 from DOSHeaderDecoder import Decoder as DOSHeaderDecoder
 
 class PyPE:
