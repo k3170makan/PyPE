@@ -3,15 +3,16 @@
 import sys
 import argparse
 import struct
+import DOSHeader
 
 #old copy of some code that whips up parser and decoder objects
-from DOSHeaderDecoder import _DOSHeaderDecoder
+from DOSHeaderDecoder import Decoder as DOSHeaderDecoder
 
 class PyPE:
-	def __init__(self,_filename,decoder=_DOSHeaderDecoder):
+	def __init__(self,_filename,decoder=DOSHeaderDecoder):
 		self.filename = _filename
 		self.fileperms = "rb"
-		self.decoder = _DOSHeaderDecoder(_filename=self.filename,\
+		self.decoder = decoder(_filename=self.filename,\
 													_fileperms=self.fileperms)
 
 	def inflate_file(self):
@@ -41,3 +42,5 @@ if __name__ == "__main__":
 		except IndexError:
 			pass
 		field_count += 1
+	dos_header = DOSHeader.DOSHeader()
+	dos_header.build_from_binary(_filename=args.file)

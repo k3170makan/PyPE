@@ -3,11 +3,11 @@
 import sys
 import argparse
 import struct
-from DOSHeader import DOSHeader
+import DOSHeader
 
-class _DOSHeaderDecoder:
+class Decoder:
 	def __init__(self,_filename="",_fileperms="rb"):
-		self.DOSHeader = DOSHeader()
+		self.DOSHeader = DOSHeader.DOSHeader()
 		self.fields = self.DOSHeader.header_fields
 		self.fmt = "".join([self.DOSHeader.header_fmt_dict[name] for name in self.fields])
 		self.fmt_len = struct.calcsize(self.fmt)

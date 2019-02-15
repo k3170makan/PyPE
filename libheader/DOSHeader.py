@@ -86,15 +86,15 @@ class DOSHeader:
 
 	"""
 	def build_from_binary(self,_filename,_fileperms="rb"):
-		dosheader = _DOSHeaderDecoder(_filename=_filename,\
+		dosheader = DOSHeaderDecoder.Decoder(_filename=_filename,\
 												_fileperms=_fileperms)
 
 		for index,value in \
-				enumerate(dosheader.decode()[:len(self.attribute_list[index])]):#might need to undo this hack one day lol
+				enumerate(dosheader.decode()[:len(self.header_fields)]):#might need to undo this hack one day lol
 	
-			print(index,value)
 			self.attribute_list[index] = \
 					(self.attribute_list[index][0],\
 					value)
 
 		return self.attribute_list	
+
