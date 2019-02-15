@@ -30,16 +30,20 @@ if __name__ == "__main__":
 	pype = PyPE(_filename=args.file)
 	inflate = pype.inflate_file()
 	field_count = 0
+	print("[*] parsing '%s'..." % (args.file))
 	print(inflate)
 
-	for index,field in enumerate(inflate):	
-		try:
-			print("[*](%d) %s :=> %s : %s" % (index,pype.get_field_name(field_count),field.__repr__(),hex(field)))
-		except ValueError:
-			print("[*](%d) %s :=> [ %s ]" % (index,pype.get_field_name(field_count),field))
-		except IndexError:
-			pass
-		field_count += 1
+	#for index,field in enumerate(inflate):	
+	#	try:
+	#		print("[*](%d) %s :=> %s : %s" % (index,pype.get_field_name(field_count),field.__repr__(),hex(field)))
+	#	except ValueError:
+	#		print("[*](%d) %s :=> [ %s ]" % (index,pype.get_field_name(field_count),field))
+	#	except IndexError:
+	#		pass
+	#	field_count += 1
 	dos_header = DOSHeader.DOSHeader()
 	dos_header.build_from_binary(_filename=args.file)
-	print("[*] getting e_lfanew :=> %s " % (hex((dos_header.get_e_lfanew()[1]))[:4]))
+	print("")
+	print(dos_header)
+	#print("[*] getting e_lfanew :=> %s " % (dos_header.get_e_lfanew()))
+
