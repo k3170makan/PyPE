@@ -5,26 +5,8 @@ import argparse
 import struct
 import DOSHeaderDecoder
 
-__DOSHeader_fields = ["e_magic",\
-					"e_cblp",\
-					"e_cp",\
-					"e_crlc",\
-					"e_cparhdr",\
-					"e_minalloc",\
-					"e_maxalloc",\
-					"e_ss",\
-					"e_sp",\
-					"e_csum",\
-					"e_ip",\
-					"e_lfarlc",\
-					"e_ovno",\
-					"e_res",\
-					"e_oemid",\
-					"e_oeminfo",\
-					"e_res2",\
-					"e_lfanew"]
-
-__DOSHeader_fmt_dict = {"e_magic":"H",\
+class DOSHeader:
+	__DOSHeader_fmt_dict = {"e_magic":"H",\
 							"e_cblp":"H",\
 							"e_cp":"H",\
 							"e_crlc":"H",\
@@ -43,7 +25,26 @@ __DOSHeader_fmt_dict = {"e_magic":"H",\
 							"e_res2":"2Q",\
 							"e_lfanew":"H"}
 	
-class DOSHeader:
+	__DOSHeader_fields = ["e_magic",\
+					"e_cblp",\
+					"e_cp",\
+					"e_crlc",\
+					"e_cparhdr",\
+					"e_minalloc",\
+					"e_maxalloc",\
+					"e_ss",\
+					"e_sp",\
+					"e_csum",\
+					"e_ip",\
+					"e_lfarlc",\
+					"e_ovno",\
+					"e_res",\
+					"e_oemid",\
+					"e_oeminfo",\
+					"e_res2",\
+					"e_lfanew"]
+
+
 	"""
 	Object for handling dos files."""
 	def __init__(self):
@@ -65,8 +66,9 @@ class DOSHeader:
 										("e_oeminfo",0),\
 										("e_res2",0),\
 										("e_lfanew",0)]
-	self.header_fields = __DOSHeader_fields
-	slef.header_fmt_dict = __DOSHeader_fmt_dict
+
+		self.header_fields = DOSHeader.__DOSHeader_fields  
+		self.header_fmt_dict = DOSHeader.__DOSHeader_fmt_dict
 	def get_e_lfanew(self):
 		lfanew_index = self.header_fields.indexof("e_lfanew") #17 should be 17
 		return self.attribute_list[lfanew_index]

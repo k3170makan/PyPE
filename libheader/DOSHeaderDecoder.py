@@ -3,12 +3,13 @@
 import sys
 import argparse
 import struct
-import DOSHeader
+from DOSHeader import DOSHeader
 
 class _DOSHeaderDecoder:
 	def __init__(self,_filename="",_fileperms="rb"):
-		self.fields = __DOSHeader_fields
-		self.fmt = "".join([__DOSHeader_fmt_dict[name] for name in self.fields])
+		self.DOSHeader = DOSHeader()
+		self.fields = self.DOSHeader.header_fields
+		self.fmt = "".join([self.DOSHeader.header_fmt_dict[name] for name in self.fields])
 		self.fmt_len = struct.calcsize(self.fmt)
 		self.original_file = _filename
 
