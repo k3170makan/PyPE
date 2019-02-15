@@ -32,7 +32,7 @@ class PEHeader:
 									 "IMAGE_FILE_MACHINE_THUMB ":"0x1c2",\
 									 "IMAGE_FILE_MACHINE_WCEMIPSV2":"0x169"}
 
-	__PEHeaderCharacsTypes_dict = {\"IMAGE_FILE_RELOCS_STRIPPED ":"0x0001",\
+	__PEHeaderCharacsTypes_dict = {"IMAGE_FILE_RELOCS_STRIPPED ":"0x0001",\
 										"IMAGE_FILE_EXECUTABLE_IMAGE ":"0x0002",\
 										"IMAGE_FILE_LINE_NUMS_STRIPPED ":"0x0004",\
 										"IMAGE_FILE_LOCAL_SYMS_STRIPPED":"0x0008",\
