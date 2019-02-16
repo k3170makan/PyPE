@@ -51,12 +51,12 @@ class PEHeader:
 										"IMAGE_FILE_BYTES_REVERSED_HI ":"0x8000"}
 
 	__PEHeader_fmt_dict = {\
-							"Signature":"H",\
+							"Signature":"I",\
 							"Machine":"H",\
-							"NumberOfSections":"Q",\
-							"TimeDateStamp":"Q",\
-							"PointerToSymbolTable":"Q",\
-							"NumberOfSymbols":"Q",\
+							"NumberOfSections":"H",\
+							"TimeDateStamp":"I",\
+							"PointerToSymbolTable":"I",\
+							"NumberOfSymbols":"I",\
 							"SizeOfOptionalHeader":"H",\
 							"Characteristics":"H"}
 	

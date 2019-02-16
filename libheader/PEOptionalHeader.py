@@ -5,28 +5,8 @@ import argparse
 import struct
 import DOSHeaderDecoder
 
-_DOSHeaderDecoder = DOSHeaderDecoder.DOSHeaderDecoder
-
-__DOSHeader_fields = ["e_magic",\
-					"e_cblp",\
-					"e_cp",\
-					"e_crlc",\
-					"e_cparhdr",\
-					"e_minalloc",\
-					"e_maxalloc",\
-					"e_ss",\
-					"e_sp",\
-					"e_csum",\
-					"e_ip",\
-					"e_lfarlc",\
-					"e_ovno",\
-					"e_res",\
-					"e_oemid",\
-					"e_oeminfo",\
-					"e_res2",\
-					"e_lfanew"]
-
-__DOSHeader_fmt_dict = {"e_magic":"H",\
+class DOSHeader:
+	__DOSHeader_fmt_dict = {"e_magic":"H",\
 							"e_cblp":"H",\
 							"e_cp":"H",\
 							"e_crlc":"H",\
@@ -45,7 +25,26 @@ __DOSHeader_fmt_dict = {"e_magic":"H",\
 							"e_res2":"2Q",\
 							"e_lfanew":"H"}
 	
-class DOSHeader:
+	__DOSHeader_fields = ["e_magic",\
+					"e_cblp",\
+					"e_cp",\
+					"e_crlc",\
+					"e_cparhdr",\
+					"e_minalloc",\
+					"e_maxalloc",\
+					"e_ss",\
+					"e_sp",\
+					"e_csum",\
+					"e_ip",\
+					"e_lfarlc",\
+					"e_ovno",\
+					"e_res",\
+					"e_oemid",\
+					"e_oeminfo",\
+					"e_res2",\
+					"e_lfanew"]
+
+
 	"""
 	Object for handling dos files."""
 	def __init__(self):
@@ -67,11 +66,14 @@ class DOSHeader:
 										("e_oeminfo",0),\
 										("e_res2",0),\
 										("e_lfanew",0)]
+
+		self.header_fields = DOSHeader.__DOSHeader_fields  
+		self.header_fmt_dict = DOSHeader.__DOSHeader_fmt_dict
 	def get_e_lfanew(self):
-		lfanew_index = _DOSHeaderDecoder.__DOS_fields.indexof("e_lfanew") #17 should be 17
-		return self.attribute_list[lfanew_index]
+		lfanew_index = self.header_fields.index("e_lfanew") #17 should be 17
+		return hex(self.attribute_list[lfanew_index][1])[:4]
 	def get_e_magic(self):
-		e_magic_index = _DOSHeaderDecoder.__DOS_fields.indexof("e_magic") #1 duh	
+		e_magic_index = self.header_fields.index("e_magic") #1 duh	
 
 	"""
 		Parse out a DOSHeader.attribute_list straight from a binary file
@@ -84,15 +86,20 @@ class DOSHeader:
 
 	"""
 	def build_from_binary(self,_filename,_fileperms="rb"):
-		dosheader = _DOSHeaderDecoder(_filename=_filename,\
+		self.filename = _filename
+		dosheader = DOSHeaderDecoder.Decoder(_filename=_filename,\
 												_fileperms=_fileperms)
 
 		for index,value in \
-				enumerate(dosheader.decode()[:len(self.attribute_list[index])]):#might need to undo this hack one day lol
+				enumerate(dosheader.decode()[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
 	
-			print(index,value)
 			self.attribute_list[index] = \
 					(self.attribute_list[index][0],\
 					value)
 
 		return self.attribute_list	
+	def __repr__(self):
+		doc_string = "DOS header '%s'\n" % (self.filename)
+		for index,field in enumerate(self.header_fields):
+			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
+		return doc_string
