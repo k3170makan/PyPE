@@ -6,8 +6,8 @@ import struct
 import PEImageOptHeaderDecoder
 
 class PEImageOptHeader:
-	__PEImageOptHeader_magic_versions = {"PE32":("0x10B","32 bit binary"),\
-														"PE32+":("0x20B","64 bit binary")}
+	__PEImageOptHeader_magic_versions = {0x10B:"32 bit binary",\
+														0x20B:"64 bit binary"}
 	__PEImageOptHeader_fmt_dict = {"Magic":"H",\
 							"LinkerVersion":"H",\
 							"SizeOfCode":"I"}
@@ -60,7 +60,18 @@ class PEImageOptHeader:
 	def __repr__(self):
 		doc_string = "\t\tPE Image Optional Header\n"
 		for index,field in enumerate(self.header_fields):
-			doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
+			if (field == "Magic"):
+				try:
+					doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
+										hex(self.attribute_list[index][1]),\
+										self.header_versions[self.attribute_list[index][1]])
+				except:
+					doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
+										hex(self.attribute_list[index][1]),\
+										self.attribute_list[index][1].__repr__())
+
+			else:	
+				doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
 										hex(self.attribute_list[index][1]),\
 										self.attribute_list[index][1].__repr__())
 		return doc_string
