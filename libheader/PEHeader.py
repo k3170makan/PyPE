@@ -50,14 +50,14 @@ class PEHeader:
 										"IMAGE_FILE_BYTES_REVERSED_HI ":"0x4000"}
 
 	__PEHeader_fmt_dict = {\
-							"Signature":"I",\
-							"Machine":"I",\
-							"NumberOfSections":"I",\
-							"TimeDateStamp":"2I",\
-							"PointerToSymbolTable":"2I",\
-							"NumberOfSymbols":"2I",\
-							"SizeOfOptionalHeader":"I",\
-							"Characteristics":"I"}
+							"Signature":"H",\
+							"Machine":"H",\
+							"NumberOfSections":"Q",\
+							"TimeDateStamp":"Q",\
+							"PointerToSymbolTable":"Q",\
+							"NumberOfSymbols":"Q",\
+							"SizeOfOptionalHeader":"H",\
+							"Characteristics":"H"}
 	
 	__PEHeader_fields = ["Signature",\
 							"Machine",\
@@ -78,10 +78,12 @@ class PEHeader:
 						("PointerToSymbolTable",0),\
 						("NumberOfSymbols",0),\
 						("SizeOfOptionalHeader",0),\
-						("Characteristics",0)]
+						("Characteristics",0,[])] #list at the end is the characs that apply
 		self.dos_header	 = _DOSHeader
 		self.header_fields = PEHeader.__PEHeader_fields 
 		self.header_fmt_dict = PEHeader.__PEHeader_fmt_dict
+		self.pe_char_fields = PEHeader.__PEHeaderCharacsTypes_dict
+		self.pe_machine_types = PEHeader.__PEHeaderMachineTypes_dict
 
 	def get_siganture(self):
 		index = self.header_fields.index("Signature") 
@@ -124,7 +126,7 @@ class PEHeader:
 		self.filename = _filename
 		if (self.dos_header):
 			return build_from_dosheader(_dosheader=self.dos_header)
-
+	
 		peheader = PEHeaderDecoder.Decoder(_filename=_filename,\
 														_fileperms=_fileperms)
 
@@ -146,10 +148,34 @@ class PEHeader:
 
 
 		for index,value in enumerate(peheader.decode(_start=self.e_lfanew)[:len(self.header_fields)]):#might need to undo this hack one day lol
-			self.attribute_list[index] = (self.attribute_list[index][0],value)	
+			if (self.attribute_list[index][0] == "Characteristics"):
+				self.attribute_list[index] = (self.attribute_list[index][0],value)	
+
+
+				try:
+					for char in self.pe_char_fields:
+						if (value != 0 and (int(self.pe_char_fields[char],16) & value == 1)):
+							#print(self.attribute_list[index])
+							if len(self.attribute_list[index]) == 3:
+								self.attribute_list[index][2].append(char)
+							else:
+								self.attribute_list[index] = (self.attribute_list[index][0],value,[char])
+				except KeyError:
+					pass
+
+
+			else:
+				self.attribute_list[index] = (self.attribute_list[index][0],value)	
+
+
 		return self.attribute_list
+
 	def __repr__(self):
-		doc_string = "PE header '%s'\n" % (self.filename)
+		doc_string = "\tPE header '%s'\n" % (self.filename)
 		for index,field in enumerate(self.header_fields):
 			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
+			if (self.attribute_list[index][0] == "Characteristics" and len(self.attribute_list[index]) == 3):
+				doc_string += "\tCharacteristics:\n"
+				for charac in self.attribute_list[index][2]:
+					doc_string += "\t\t|-- [%s]\n" % (charac)
 		return doc_string
