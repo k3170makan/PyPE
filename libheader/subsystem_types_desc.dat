@@ -1,0 +1,14 @@
+An unknown subsystem 
+Device drivers and native Windows processes 
+The Windows graphical user interface (GUI) subsystem 
+The Windows character subsystem 
+The OS/2 character subsystem 
+The Posix character subsystem 
+Native Win9x driver 
+Windows CE 
+An Extensible Firmware Interface (EFI) application 
+An EFI driver with boot services 
+An EFI driver with run-time services 
+An EFI ROM image 
+XBOX 
+Windows boot application. 
