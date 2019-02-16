@@ -133,11 +133,12 @@ class PEImageOptHeader:
 		   return None
 		self.filename = self.dos_header.filename
 		self.fileperms = "rb"
+		self.hack = 16+8 #will explain this later, I know it works not sure why yet lol
 		self.e_lfanew = int(self.dos_header.get_e_lfanew(),16)
 		optheader = PEImageOptHeaderDecoder.Decoder(_filename=self.filename,\
                                          _fileperms=self.fileperms)
 		
-		for index,value in enumerate(optheader.decode(_start=(self.e_lfanew+16+8))):
+		for index,value in enumerate(optheader.decode(_start=(self.e_lfanew+self.hack))):
 
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):
 				for char in self.header_dllchars:
