@@ -10,15 +10,43 @@ class PEImageOptHeader:
 														0x20B:"64 bit binary"}
 	__PEImageOptHeader_fmt_dict = {"Magic":"H",\
 							"LinkerVersion":"H",\
-							"SizeOfCode":"I"}
+							"SizeOfCode":"I",
+							"SizeOfInitalizedData":"I",\
+							"SizeOfUninitializedData":"I",\
+							"AddressOfEntryPoint":"I",\
+							"BaseOfCode":"I",\
+							"BaseOfData":"I",\
+							"ImageBase":"I",\
+							"SectionAlignment":"I",\
+							"FileAlignment":"I"}
+
 	__PEImageOptHeader_fields = ["Magic",\
 							"LinkerVersion",\
-							"SizeOfCode"]
-				 
+							"SizeOfCode",
+							"SizeOfInitalizedData",\
+							"SizeOfUninitializedData",\
+							"AddressOfEntryPoint",\
+							"BaseOfCode",\
+							"BaseOfData",\
+							"ImageBase",\
+							"SectionAlignment",\
+							"FileAlignment"]
+
+	 
 	def __init__(self,_dos_header=None):
 		self.attribute_list =  [("Magic",0),\
 										("LinkerVersion",0),\
-										("SizeofCode",0)]
+										("SizeofCode",0),\
+										("SizeOfInitalizedData",0),\
+										("SizeOfUninitializedData",0),\
+										("AddressOfEntryPoint",0),\
+										("BaseOfCode",0),\
+										("BaseOfData",0),\
+										("ImageBase",0),\
+										("SectionAlignment",0),\
+										("FileAlignment",0)]
+
+
 		self.dos_header = _dos_header
 		self.header_fields = PEImageOptHeader.__PEImageOptHeader_fields  
 		self.header_fmt_dict = PEImageOptHeader.__PEImageOptHeader_fmt_dict
