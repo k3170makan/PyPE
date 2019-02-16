@@ -5,6 +5,16 @@ PyPE is essentially just a simple struct abusing library to parse Windows PE fil
 It builds a dictionary holding a struct fmt for each field in each header.
 Concats them up and then pulls the binary file through a series of unpack calls for each header field.
 
+Usage:
+```
+> ./test.py --help
+usage: test.py [-h] [--file FILE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --file FILE, -f FILE  PE filename
+```
+
 Example of run:
 ```
 [*] parsing '/home/kh3m/Research/WindowsDrivers/Samsung/Printer/amd64/itdrvDR.exe'...
