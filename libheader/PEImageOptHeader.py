@@ -18,7 +18,16 @@ class PEImageOptHeader:
 							"BaseOfData":"I",\
 							"ImageBase":"I",\
 							"SectionAlignment":"I",\
-							"FileAlignment":"I"}
+							"FileAlignment":"I",\
+							"MajorOperatingSystemVersion":"I",\
+							"ImageVersion":"I",\
+							"SubSystemVersion":"I",\
+							"Reserved_1":"I",\
+							"SizeOfImage":"I",\
+							"SizeOfHeader":"I",\
+							"Checksum":"I",\
+							"SubSystem":"H",\
+							"DLLCharacteristics":"H"}
 
 	__PEImageOptHeader_fields = ["Magic",\
 							"LinkerVersion",\
@@ -30,7 +39,18 @@ class PEImageOptHeader:
 							"BaseOfData",\
 							"ImageBase",\
 							"SectionAlignment",\
-							"FileAlignment"]
+							"FileAlignment",
+							"MajorOperatingSystemVersion",\
+							"ImageVersion",\
+							"SubSystemVersion",\
+							"Reserved_1",\
+							"SizeOfImage",\
+							"SizeOfHeader",\
+							"Checksum",\
+							"SubSystem",\
+							"DLLCharacteristics"]
+
+
 
 	 
 	def __init__(self,_dos_header=None):
