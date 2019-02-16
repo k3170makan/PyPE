@@ -33,21 +33,22 @@ class PEHeader:
 									 "IMAGE_FILE_MACHINE_THUMB ":"0x1c2",\
 									 "IMAGE_FILE_MACHINE_WCEMIPSV2":"0x169"}
 
-	__PEHeaderCharacsTypes_dict = {"IMAGE_FILE_RELOCS_STRIPPED ":"0x0001",\
-										"IMAGE_FILE_EXECUTABLE_IMAGE ":"0x0002",\
-										"IMAGE_FILE_LINE_NUMS_STRIPPED ":"0x0004",\
+	__PEHeaderCharacsTypes_dict = {"IMAGE_FILE_RELOCS_STRIPPED":"0x0001",\
+										"IMAGE_FILE_EXECUTABLE_IMAGE":"0x0002",\
+										"IMAGE_FILE_LINE_NUMS_STRIPPED":"0x0004",\
 										"IMAGE_FILE_LOCAL_SYMS_STRIPPED":"0x0008",\
-										"IMAGE_FILE_AGGRESSIVE_WS_TRIM ":"0x0010",\
-										"IMAGE_FILE_LARGE_ADDRESS_ AWARE ":"0x0020",\
-										"IMAGE_FILE_BYTES_REVERSED_LO ":"0x0040",\
-										"IMAGE_FILE_32BIT_MACHINE ":"0x0080",\
-										"IMAGE_FILE_DEBUG_STRIPPED ":"0x0100",\
-										"IMAGE_FILE_REMOVABLE_RUN_ FROM_SWAP ":"0x0200",\
-										"IMAGE_FILE_NET_RUN_FROM_SWAP":"0x0400",\
-										"IMAGE_FILE_SYSTEM ":"0x0800",\
-										"IMAGE_FILE_DLL ":"0x1000",\
-										"IMAGE_FILE_UP_SYSTEM_ONLY ":"0x2000",\
-										"IMAGE_FILE_BYTES_REVERSED_HI ":"0x4000"}
+										"IMAGE_FILE_AGGRESSIVE_WS_TRIM":"0x0010",\
+										"IMAGE_FILE_LARGE_ADDRESS_AWARE":"0x0020",\
+										"RESERVED":"0x0040",\
+										"IMAGE_FILE_BYTES_REVERSED_LO":"0x0080",\
+										"IMAGE_FILE_32BIT_MACHINE":"0x0100",\
+										"IMAGE_FILE_DEBUG_STRIPPED":"0x0200",\
+										"IMAGE_FILE_REMOVABLE_RUN_ FROM_SWAP ":"0x0400",\
+										"IMAGE_FILE_NET_RUN_FROM_SWAP":"0x0800",\
+										"IMAGE_FILE_SYSTEM ":"0x1000",\
+										"IMAGE_FILE_DLL ":"0x2000",\
+										"IMAGE_FILE_UP_SYSTEM_ONLY ":"0x4000",\
+										"IMAGE_FILE_BYTES_REVERSED_HI ":"0x8000"}
 
 	__PEHeader_fmt_dict = {\
 							"Signature":"H",\
@@ -148,13 +149,14 @@ class PEHeader:
 
 
 		for index,value in enumerate(peheader.decode(_start=self.e_lfanew)[:len(self.header_fields)]):#might need to undo this hack one day lol
+
 			if (self.attribute_list[index][0] == "Characteristics"):
 				self.attribute_list[index] = (self.attribute_list[index][0],value)	
 
-
 				try:
 					for char in self.pe_char_fields:
-						if (value != 0 and (int(self.pe_char_fields[char],16) & value == 1)):
+						char_value = int(self.pe_char_fields[char],16)
+						if (value != 0 and (int(char_value) & value != 0)):
 							#print(self.attribute_list[index])
 							if len(self.attribute_list[index]) == 3:
 								self.attribute_list[index][2].append(char)
