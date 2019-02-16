@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 import DOSHeader
+import PEHeader
 from DOSHeaderDecoder import Decoder as DOSHeaderDecoder
 
 class PyPE:
@@ -43,7 +44,8 @@ if __name__ == "__main__":
 	#	field_count += 1
 	dos_header = DOSHeader.DOSHeader()
 	dos_header.build_from_binary(_filename=args.file)
-	print("")
-	print(dos_header)
-	#print("[*] getting e_lfanew :=> %s " % (dos_header.get_e_lfanew()))
+	print("[*] getting e_lfanew :=> %s " % (dos_header.get_e_lfanew()))
+	pe_header = PEHeader.PEHeader(dos_header) 
+	pe_header.build_from_dosheader()
+	print(pe_header)
 

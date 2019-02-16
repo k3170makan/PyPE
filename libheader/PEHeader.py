@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 import DOSHeaderDecoder
+import PEHeaderDecoder
 
 class PEHeader:
 	__PEHeaderMachineTypes_dict = {"IMAGE_FILE_MACHINE_UNKNOWN ":"0x0",
@@ -69,7 +70,7 @@ class PEHeader:
 
 	"""
 	Object for handling PEHeaders files."""
-	def __init__(self,DOSHeader):
+	def __init__(self,_DOSHeader=None):
 		self.attribute_list =  [("Signature",0),\
 						("Machine",0),\
 						("NumberOfSections",0),\
@@ -78,7 +79,7 @@ class PEHeader:
 						("NumberOfSymbols",0),\
 						("SizeOfOptionalHeader",0),\
 						("Characteristics",0)]
-		self.DOSHeader	 = DOSHeader
+		self.dos_header	 = _DOSHeader
 		self.header_fields = PEHeader.__PEHeader_fields 
 		self.header_fmt_dict = PEHeader.__PEHeader_fmt_dict
 
@@ -120,15 +121,35 @@ class PEHeader:
 
 	"""
 	def build_from_binary(self,_filename,_fileperms="rb"):
-		peheader = PEHeaderDecoder.Decoder(_filename=_filename,\
-												_fileperms=_fileperms)
+		self.filename = _filename
+		if (self.dos_header):
+			return build_from_dosheader(_dosheader=self.dos_header)
 
-		for index,value in \
-				enumerate(peheader.decode()[:len(self.header_fields)]):#might need to undo this hack one day lol
-	
+		peheader = PEHeaderDecoder.Decoder(_filename=_filename,\
+														_fileperms=_fileperms)
+
+		for index,value in enumerate(peheader.decode()[:len(self.header_fields)]):#might need to undo this hack one day lol
 			self.attribute_list[index] = \
 					(self.attribute_list[index][0],\
 					value)
 
 		return self.attribute_list	
+	def build_from_dosheader(self):
+		if (not(self.dos_header)):
+			return None
+		self.filename = self.dos_header.filename
+		self.fileperms = "rb"
+		self.e_lfanew = int(self.dos_header.get_e_lfanew(),16)
 
+		peheader = PEHeaderDecoder.Decoder(_filename=self.filename,\
+														_fileperms=self.fileperms)
+
+
+		for index,value in enumerate(peheader.decode(_start=self.e_lfanew)[:len(self.header_fields)]):#might need to undo this hack one day lol
+			self.attribute_list[index] = (self.attribute_list[index][0],value)	
+		return self.attribute_list
+	def __repr__(self):
+		doc_string = "PE header '%s'\n" % (self.filename)
+		for index,field in enumerate(self.header_fields):
+			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
+		return doc_string

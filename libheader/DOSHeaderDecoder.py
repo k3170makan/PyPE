@@ -4,7 +4,12 @@ import sys
 import argparse
 import struct
 import DOSHeader
+"""
+Decoders are essentially plugins for how to handle PE files with their inflated,
+of course you might want to hex parse it or undo some alphanumeric malwarey nonsense.
+Write your own decoder, write your own encoder, same format
 
+"""
 class Decoder:
 	def __init__(self,_filename="",_fileperms="rb"):
 		self.DOSHeader = DOSHeader.DOSHeader()

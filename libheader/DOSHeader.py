@@ -101,5 +101,5 @@ class DOSHeader:
 	def __repr__(self):
 		doc_string = "DOS header '%s'\n" % (self.filename)
 		for index,field in enumerate(self.header_fields):
-			doc_string += "\t|- %s => [%s]\n" % (field,self.attribute_list[index])
+			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
 		return doc_string
