@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 import DOSHeaderDecoder
+from Utils import spaces
 
 class DOSHeader:
 	__DOSHeader_fmt_dict = {"e_magic":"H",\
@@ -88,7 +89,7 @@ class DOSHeader:
 	def build_from_binary(self,_filename,_fileperms="rb"):
 		self.filename = _filename
 		dosheader = DOSHeaderDecoder.Decoder(_filename=_filename,\
-												_fileperms=_fileperms)
+											_fileperms=_fileperms)
 
 		for index,value in \
 				enumerate(dosheader.decode()[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
@@ -101,5 +102,8 @@ class DOSHeader:
 	def __repr__(self):
 		doc_string = "DOS header '%s'\n" % (self.filename)
 		for index,field in enumerate(self.header_fields):
-			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
+			pred = len("\t|- %s => [%s]\n")
+			subj = len("".join([field,hex(self.attribute_list[index][1])]))
+			_spaces = spaces(predicate=pred,subject=subj)
+			doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
 		return doc_string

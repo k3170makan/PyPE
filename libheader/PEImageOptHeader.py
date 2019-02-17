@@ -157,30 +157,28 @@ class PEImageOptHeader:
 	def __repr__(self):
 		doc_string = "\t\tPE Image Optional Header\n"
 		for index,field in enumerate(self.header_fields):
-			try:
-				if (field == "SubSystem"):
-					doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
-							hex(self.attribute_list[index][1]),\
-							self.header_subsversions[self.attribute_list[index][1]])
-			
-				elif (field == "DLLCharacteristics"):
-					doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
-							hex(self.attribute_list[index][1]),\
-							self.attribute_list[index][1])
+			pred = "\t\t|- %s => [%s : %s]\n"
+			value = self.attribute_list[index][1]
+			subj = [field,hex(value),value]
+			sent = pred % (subj[0],subj[1],subj[2])
+			if (field == "SubSystem"):
+				try:
+					doc_string  += pred % (subj[0],subj[1],self.header_subsversions[subj[2]])
+				except KeyError: #TODO should add unique handling for funny values late
+					doc_string += sent	
+			elif (field == "DLLCharacteristics"):
+				doc_string  += sent
+				if(len(self.attribute_list[index]) == 3):
+					for charac in self.attribute_list[index][2]:
+						pred = "\t\t\t|-- [%s]\n"
+						sent = pred % (charac)
+						doc_string += sent
 
-					if(len(self.attribute_list[index]) == 3):
-						for charac in self.attribute_list[index][2]:
-							doc_string += "\t\t\t|-- [%s]\n" % (charac)
-				elif (field == "Magic"):
-						doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
-							hex(self.attribute_list[index][1]),\
-							self.header_versions[self.attribute_list[index][1]])
-				else:	
-					doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
-							hex(self.attribute_list[index][1]),\
-							self.attribute_list[index][1].__repr__())
-			except:
-				doc_string += " \t\t|- %s => [%s : %s]\n" % (field,\
-						hex(self.attribute_list[index][1]),\
-						self.attribute_list[index][1])
+			elif (field == "Magic"):
+				try:
+					doc_string += pred % (subj[0],subj[1],self.header_versions[subj[2]])
+				except KeyError:
+					doc_string += sent
+			else:	
+				doc_string += sent
 		return doc_string

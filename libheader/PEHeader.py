@@ -3,6 +3,7 @@
 import sys
 import argparse
 import struct
+from Utils import spaces
 import DOSHeaderDecoder
 import PEHeaderDecoder
 
@@ -168,14 +169,15 @@ class PEHeader:
 
 			else:
 				self.attribute_list[index] = (self.attribute_list[index][0],value)	
-
-
 		return self.attribute_list
 
 	def __repr__(self):
 		doc_string = "\tPE header '%s'\n" % (self.filename)
 		for index,field in enumerate(self.header_fields):
-			doc_string += "\t|- %s => [%s]\n" % (field,hex(self.attribute_list[index][1]))
+			pred = len("\t|- %s => [%s]\n")
+			subj = len("".join([field,hex(self.attribute_list[index][1])]))
+			_spaces = spaces(line_length=40,predicate=pred,subject=subj)
+			doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
 			if (self.attribute_list[index][0] == "Characteristics" and len(self.attribute_list[index]) == 3):
 				doc_string += "\tCharacteristics:\n"
 				for charac in self.attribute_list[index][2]:
