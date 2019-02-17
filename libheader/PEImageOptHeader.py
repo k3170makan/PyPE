@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 import PEImageOptHeaderDecoder
+from Utils import spaces
 
 class PEImageOptHeader:
 	__PEImageOptHeader_magic_versions = {0x10B:"32 bit binary",\
@@ -56,7 +57,13 @@ class PEImageOptHeader:
 							"SizeOfHeader":"I",\
 							"Checksum":"I",\
 							"SubSystem":"H",\
-							"DLLCharacteristics":"H"}
+							"DLLCharacteristics":"H",\
+							"SizeOfStackReserve":"I",\
+							"SizeOfStackCommit":"I",\
+							"SizeOfHeapReserve":"I",\
+							"SizeOfHeapCommit":"I"}
+
+#TODO : fix last 4 fields of the PE header
 
 	__PEImageOptHeader_fields = ["Magic",\
 							"LinkerVersion",\
@@ -77,7 +84,13 @@ class PEImageOptHeader:
 							"SizeOfHeader",\
 							"Checksum",\
 							"SubSystem",\
-							"DLLCharacteristics"]
+							"DLLCharacteristics",\
+							"SizeOfStackReserve",\
+							"SizeOfStackCommit",\
+							"SizeOfHeapReserve",\
+							"SizeOfHeapCommit"]
+
+
 
 
 
@@ -102,7 +115,11 @@ class PEImageOptHeader:
 										("SizeOfHeader",0),\
 										("Checksum",0),\
 										("SubSystem",0),\
-										("DLLCharacteristics",0,[])]
+										("DLLCharacteristics",0,[]),\
+										("SizeOfStackReserve",0),\
+										("SizeOfStackCommit",0),\
+										("SizeOfHeapReserve",0),\
+										("SizeOfHeapCommit",0)]
 
 
 		self.dos_header = _dos_header
@@ -140,8 +157,10 @@ class PEImageOptHeader:
 		
 		for index,value in enumerate(optheader.decode(_start=(self.e_lfanew+self.hack))):
 
+			self.attribute_list[index] = (self.attribute_list[index][0],value)
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):
 				for char in self.header_dllchars:
+					print(value)
 					char_value = self.header_dllchars[char]
 					and_value = char_value & value
 					if (and_value):
@@ -149,25 +168,28 @@ class PEImageOptHeader:
 							self.attribute_list[index][2].append(char)
 						else:
 							self.attribute_list[index] = (self.attribute_list[index][0],value,[char])
-			else:
-				self.attribute_list[index] = (self.attribute_list[index][0],value)
-
 		return self.attribute_list
 	
 	def __repr__(self):
 		doc_string = "\t\tPE Image Optional Header\n"
 		for index,field in enumerate(self.header_fields):
-			pred = "\t\t|- %s => [%s : %s]\n"
+			pred = "\t\t|- %s =>%s[%s : %s]\n"
 			value = self.attribute_list[index][1]
 			subj = [field,hex(value),value]
-			sent = pred % (subj[0],subj[1],subj[2])
+			_spaces = spaces(line_length=30,predicate=len(pred),subject=len(subj))
+			sent = pred % (subj[0],_spaces,subj[1],subj[2])
+
 			if (field == "SubSystem"):
 				try:
-					doc_string  += pred % (subj[0],subj[1],self.header_subsversions[subj[2]])
+					subj = [subj[0],subj[1],self.header_subsversions[subj[2]]]
+					_spaces = spaces(line_length=30,subject=len(subj),predicate=len(pred))
+					doc_string  += pred % (subj[0],_spaces,subj[1],self.header_subsversions[subj[2]])
 				except KeyError: #TODO should add unique handling for funny values late
 					doc_string += sent	
 			elif (field == "DLLCharacteristics"):
 				doc_string  += sent
+				#print(self.attribute_list)
+				#print(sent)
 				if(len(self.attribute_list[index]) == 3):
 					for charac in self.attribute_list[index][2]:
 						pred = "\t\t\t|-- [%s]\n"
@@ -176,7 +198,7 @@ class PEImageOptHeader:
 
 			elif (field == "Magic"):
 				try:
-					doc_string += pred % (subj[0],subj[1],self.header_versions[subj[2]])
+					doc_string += pred % (subj[0],_spaces,subj[1],self.header_versions[subj[2]])
 				except KeyError:
 					doc_string += sent
 			else:	
