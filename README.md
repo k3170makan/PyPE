@@ -1,4 +1,4 @@
-# [PROG] PyPE
+# [IN PROGRESS] PyPE
 Yet another Python PE File parsing library
 
 PyPE is essentially just a simple struct abusing library to parse Windows PE files.

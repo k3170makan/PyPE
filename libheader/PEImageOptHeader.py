@@ -160,7 +160,6 @@ class PEImageOptHeader:
 			self.attribute_list[index] = (self.attribute_list[index][0],value)
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):
 				for char in self.header_dllchars:
-					print(value)
 					char_value = self.header_dllchars[char]
 					and_value = char_value & value
 					if (and_value):
