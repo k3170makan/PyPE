@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 import PEImageOptHeaderDecoder
+import PEHeader
 from Utils import spaces
 
 class PEImageOptHeader:
@@ -61,7 +62,9 @@ class PEImageOptHeader:
 							"SizeOfStackReserve":"I",\
 							"SizeOfStackCommit":"I",\
 							"SizeOfHeapReserve":"I",\
-							"SizeOfHeapCommit":"I"}
+							"SizeOfHeapCommit":"I",\
+							"LoaderFlags":"H",\
+							"NumberOfRvaAndSizes":"H"}
 
 #TODO : fix last 4 fields of the PE header
 
@@ -88,7 +91,9 @@ class PEImageOptHeader:
 							"SizeOfStackReserve",\
 							"SizeOfStackCommit",\
 							"SizeOfHeapReserve",\
-							"SizeOfHeapCommit"]
+							"SizeOfHeapCommit",\
+							"LoaderFlags",\
+							"NumberOfRvaAndSizes"]
 
 
 
@@ -119,10 +124,14 @@ class PEImageOptHeader:
 										("SizeOfStackReserve",0),\
 										("SizeOfStackCommit",0),\
 										("SizeOfHeapReserve",0),\
-										("SizeOfHeapCommit",0)]
+										("SizeOfHeapCommit",0),\
+										("LoaderFlags",0),\
+										("NumberOfRvaAndSizes",0)]
 
 
 		self.dos_header = _dos_header
+		if (self.dos_header):
+			self.offset = 16+8 + int(self.dos_header.get_e_lfanew(),16) #the PE_header is 20 bytes so far + flanew
 		self.header_fields = PEImageOptHeader.__PEImageOptHeader_fields  
 		self.header_fmt_dict = PEImageOptHeader.__PEImageOptHeader_fmt_dict
 		self.header_versions = PEImageOptHeader.__PEImageOptHeader_magic_versions
@@ -132,30 +141,45 @@ class PEImageOptHeader:
 	def build_from_binary(self,_filename,_fileperms="rb"):
 		self.filename = _filename
 		self.fileperms = _fileperms
-		if (self.dos_header):
-			return self.build_from_dosheader()
 
 		optheader = PEImageOptHeaderDecoder.Decoder(_filename=_filename,\
 												_fileperms=_fileperms)
 		for index,value in \
-				enumerate(optheader.decode()[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
+				enumerate(optheader.decode(_start=self.offset)[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
 			self.attribute_list[index] = \
 					(self.attribute_list[index][0],\
 					value)
 
 		return self.attribute_list	
+	
+	def set_offset(self,_offset=0):
+		self.offset = _offset
 
-	def build_from_dosheader(self):
+	def build_from_peheader(self,pe_header=None):
+		self.filename = self.pe_header.filename
+		self.fileperms = self.pe_header.fileperms
+		self.offset = self.pe_header.get_offset() + self.pe_header.fmt_len
+
+		return self.build_from_binary()
+
+	def build_from_dosheader(self,_dos_header=None):
 		if (not(self.dos_header)):
-		   return None
+			self.dos_header = _dos_header
 		self.filename = self.dos_header.filename
 		self.fileperms = "rb"
-		self.hack = 16+8 #will explain this later, I know it works not sure why yet lol
-		self.e_lfanew = int(self.dos_header.get_e_lfanew(),16)
-		optheader = PEImageOptHeaderDecoder.Decoder(_filename=self.filename,\
+
+		return self.build_from_binary()	
+
+	def build_from_binary(self,_filename="",_fileperms="rb"):
+		if (_filename != ""):
+			self.filename = _filename
+		if (_fileperms != ""):
+			self.fileperms = _fileperms
+
+		optheader_decoder = PEImageOptHeaderDecoder.Decoder(_filename=self.filename,\
                                          _fileperms=self.fileperms)
-		
-		for index,value in enumerate(optheader.decode(_start=(self.e_lfanew+self.hack))):
+		optheader = optheader_decoder.decode(_start=self.offset)
+		for index,value in enumerate(optheader)	:
 
 			self.attribute_list[index] = (self.attribute_list[index][0],value)
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):
@@ -168,7 +192,8 @@ class PEImageOptHeader:
 						else:
 							self.attribute_list[index] = (self.attribute_list[index][0],value,[char])
 		return self.attribute_list
-	
+
+		
 	def __repr__(self):
 		doc_string = "\t\tPE Image Optional Header\n"
 		for index,field in enumerate(self.header_fields):
@@ -183,12 +208,11 @@ class PEImageOptHeader:
 					subj = [subj[0],subj[1],self.header_subsversions[subj[2]]]
 					_spaces = spaces(line_length=30,subject=len(subj),predicate=len(pred))
 					doc_string  += pred % (subj[0],_spaces,subj[1],subj[2])
-				except KeyError: #TODO should add unique handling for funny values late
+				except KeyError: 
 					doc_string += sent	
+
 			elif (field == "DLLCharacteristics"):
 				doc_string  += sent
-				#print(self.attribute_list)
-				#print(sent)
 				if(len(self.attribute_list[index]) == 3):
 					for charac in self.attribute_list[index][2]:
 						pred = "\t\t\t|-- [%s]\n"

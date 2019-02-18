@@ -24,7 +24,7 @@ if __name__ == "__main__":
 	pe_header.build_from_dosheader()
 
 	imgopt_header = PEImageOptHeader.PEImageOptHeader(dos_header)
-	imgopt_header.build_from_binary(_filename=args.file)	
+	imgopt_header.build_from_dosheader()	
 
 	print(dos_header)
 	print(pe_header)

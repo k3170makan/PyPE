@@ -70,7 +70,7 @@ class DOSHeader:
 
 		self.header_fields = DOSHeader.__DOSHeader_fields  
 		self.header_fmt_dict = DOSHeader.__DOSHeader_fmt_dict
-
+		self.len = 0		
 	def get_e_lfanew(self):
 		lfanew_index = self.header_fields.index("e_lfanew") #17 should be 17
 		return hex(self.attribute_list[lfanew_index][1])[:4]
@@ -90,15 +90,14 @@ class DOSHeader:
 	def build_from_binary(self,_filename,_fileperms="rb"):
 		self.filename = _filename
 		self.fileperms = _fileperms
-		dosheader = DOSHeaderDecoder.Decoder(_filename=_filename,\
+		dosheader_decoder = DOSHeaderDecoder.Decoder(_filename=_filename,\
 											_fileperms=_fileperms)
-
-		for index,value in \
-				enumerate(dosheader.decode()[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
-	
-			self.attribute_list[index] = \
-					(self.attribute_list[index][0],\
-					value)
+			
+		attributes,length = dosheader_decoder.decode()
+		self.len = length
+		attributes = attributes[:len(self.attribute_list)]#HACK might need to undo this hack one day lol
+		for index,value in enumerate(attributes):
+			self.attribute_list[index] = (self.attribute_list[index][0],value)
 
 		return self.attribute_list	
 	def __repr__(self):

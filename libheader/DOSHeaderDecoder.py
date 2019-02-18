@@ -12,9 +12,10 @@ Write your own decoder, write your own encoder, same format
 """
 class Decoder:
 	def __init__(self,_filename="",_fileperms="rb"):
-		self.DOSHeader = DOSHeader.DOSHeader()
-		self.fields = self.DOSHeader.header_fields
-		self.fmt = "".join([self.DOSHeader.header_fmt_dict[name] for name in self.fields])
+		self._header = DOSHeader.DOSHeader()
+		self.fields = self._header.header_fields
+		self.fmt_dict = self._header.header_fmt_dict
+		self.fmt = "".join([self.fmt_dict[name] for name in self.fields])
 		self.fmt_len = struct.calcsize(self.fmt)
 		self.original_file = _filename
 
@@ -24,12 +25,9 @@ class Decoder:
 		self.decoded_file = None
 		with open(self.original_file,self.fileperms) as raw_pe:
 			_bytes = raw_pe.read(self.fmt_len)
-			try:
-				self.decoded_file = struct.unpack(self.fmt,_bytes)
-			except struct.error:
-				pass	
+			self.decoded_file = struct.unpack(self.fmt,_bytes)
+		return self.decoded_file,len(_bytes)
 
-		return self.decoded_file
 	def decode_field(self,index):
 		return self.fields[index]
 

@@ -84,7 +84,7 @@ class PEHeader:
 						("Characteristics",0,[])] #list at the end is the characs that apply
 		self.dos_header	 = _DOSHeader
 		if (self.dos_header):
-			self.set_offset(_header=self.dos_header)
+			self.set_offset(int(self.dos_header.get_e_lfanew(),16))
 		self.header_fields = PEHeader.__PEHeader_fields 
 		self.header_fmt_dict = PEHeader.__PEHeader_fmt_dict
 		self.pe_char_fields = PEHeader.__PEHeaderCharacsTypes_dict
@@ -118,11 +118,6 @@ class PEHeader:
 		index = self.header_fields.index("Characteristics") 
 		return self.attribute_list[index]
 
-	def get_numberofrvaandsizes(self):
-		index = self.header_fields.index("NumberOfRvaAndSizes")
-		return self.attribute_list[index]
-
-
 	"""
 		Parse out a DOSHeader.attribute_list straight from a binary file
 		def build_from_binary(
@@ -138,29 +133,19 @@ class PEHeader:
 		if (self.dos_header):
 			return build_from_dosheader(_dosheader=self.dos_header)
 	
-		peheader = PEHeaderDecoder.Decoder(_filename=_filename,\
+		peheader,length = PEHeaderDecoder.Decoder(_filename=_filename,\
 														_fileperms=_fileperms)
 
-		for index,value in enumerate(peheader.decode()[:len(self.header_fields)]):#might need to undo this hack one day lol
-			self.attribute_list[index] = \
-					(self.attribute_list[index][0],\
-					value)
+		self.len = length
+		for index,value in enumerate(peheader.decode()[:len(self.attribute_list)]):#might need to undo this hack one day lol
+			self.attribute_list[index] = (self.attribute_list[index][0],value)
 
 		return self.attribute_list	
 
 	def get_offset(self):
-		if (self.offset):
-			return self.offset	
-		else:
-			return 0x40 + 0x40 + 0x10
-
-	def set_offset(self,_header=None,_offset=0):
-		if (type(_header) == type(DOSHeader)):
-			if (not(self.dos_header)):
-				self.dos_header = _header
-			self.offset = int(_header.get_e_lfanew(),16)
-		else:
-			self.offset = _offset
+		return self.offset	
+	def set_offset(self,_offset):
+		self.offset = _offset
 
 	def build_from_dosheader(self):
 		if (not(self.dos_header)):
@@ -171,12 +156,12 @@ class PEHeader:
 
 		pedecoder = PEHeaderDecoder.Decoder(_filename=self.filename,\
 												_fileperms=self.fileperms)
-		peheader = pedecoder.decode(_start=self.offset)[:len(self.header_fields)]
+		peheader,length = pedecoder.decode(_start=self.offset)[:len(self.attribute_list)]
+		self.len = length
 
 		for index,value in enumerate(peheader):#might need to undo this hack one day lol
 
 			if (self.attribute_list[index][0] == "Characteristics"):
-				self.attribute_list[index] = (self.attribute_list[index][0],value)	
 				try:
 					for char in self.pe_char_fields:
 						char_value = int(self.pe_char_fields[char],16)
