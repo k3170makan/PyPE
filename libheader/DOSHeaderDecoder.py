@@ -24,7 +24,10 @@ class Decoder:
 		self.decoded_file = None
 		with open(self.original_file,self.fileperms) as raw_pe:
 			_bytes = raw_pe.read(self.fmt_len)
-			self.decoded_file = struct.unpack(self.fmt,_bytes)
+			try:
+				self.decoded_file = struct.unpack(self.fmt,_bytes)
+			except struct.error:
+				pass	
 
 		return self.decoded_file
 	def decode_field(self,index):

@@ -4,6 +4,7 @@ import sys
 import argparse
 import struct
 from Utils import spaces
+import DOSHeader
 import DOSHeaderDecoder
 import PEHeaderDecoder
 
@@ -82,6 +83,8 @@ class PEHeader:
 						("SizeOfOptionalHeader",0),\
 						("Characteristics",0,[])] #list at the end is the characs that apply
 		self.dos_header	 = _DOSHeader
+		if (self.dos_header):
+			self.set_offset(_header=self.dos_header)
 		self.header_fields = PEHeader.__PEHeader_fields 
 		self.header_fmt_dict = PEHeader.__PEHeader_fmt_dict
 		self.pe_char_fields = PEHeader.__PEHeaderCharacsTypes_dict
@@ -110,6 +113,7 @@ class PEHeader:
 	def get_sizeofoptionalheader(self):
 		index = self.header_fields.index("SizeOfOptionalHeader") 
 		return self.attribute_list[index]
+
 	def get_characteristics(self):
 		index = self.header_fields.index("Characteristics") 
 		return self.attribute_list[index]
@@ -138,35 +142,47 @@ class PEHeader:
 					value)
 
 		return self.attribute_list	
+
+	def get_offset(self):
+		if (self.offset):
+			return self.offset	
+		else:
+			return 0x40 + 0x40 + 0x10
+
+	def set_offset(self,_header=None,_offset=0):
+		if (type(_header) == type(DOSHeader)):
+			if (not(self.dos_header)):
+				self.dos_header = _header
+			self.offset = int(_header.get_e_lfanew(),16)
+		else:
+			self.offset = _offset
+
 	def build_from_dosheader(self):
 		if (not(self.dos_header)):
-			return None
+			return None	
+
 		self.filename = self.dos_header.filename
-		self.fileperms = "rb"
-		self.e_lfanew = int(self.dos_header.get_e_lfanew(),16)
+		self.fileperms = self.dos_header.fileperms
 
-		peheader = PEHeaderDecoder.Decoder(_filename=self.filename,\
-														_fileperms=self.fileperms)
+		pedecoder = PEHeaderDecoder.Decoder(_filename=self.filename,\
+												_fileperms=self.fileperms)
+		peheader = pedecoder.decode(_start=self.offset)[:len(self.header_fields)]
 
-
-		for index,value in enumerate(peheader.decode(_start=self.e_lfanew)[:len(self.header_fields)]):#might need to undo this hack one day lol
+		for index,value in enumerate(peheader):#might need to undo this hack one day lol
 
 			if (self.attribute_list[index][0] == "Characteristics"):
 				self.attribute_list[index] = (self.attribute_list[index][0],value)	
-
 				try:
 					for char in self.pe_char_fields:
 						char_value = int(self.pe_char_fields[char],16)
 						if (value != 0 and (int(char_value) & value != 0)):
-							#print(self.attribute_list[index])
 							if len(self.attribute_list[index]) == 3:
 								self.attribute_list[index][2].append(char)
 							else:
-								self.attribute_list[index] = (self.attribute_list[index][0],value,[char])
+								self.attribute_list[index] = (self.attribute_list[index][0],\
+																		value,[char])
 				except KeyError:
 					pass
-
-
 			else:
 				self.attribute_list[index] = (self.attribute_list[index][0],value)	
 		return self.attribute_list

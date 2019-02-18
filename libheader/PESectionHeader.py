@@ -67,9 +67,11 @@ class PESectionHeader:
 		return self.attribute_list	
 
 	def get_offset(self):
+		if (not (self.pe_header)):
+			return 0
 		self.filename = self.dos_header.filename
 		self.fileperms = "rb"
-		return 0
+		return self.pe_header.size
 	def build_from_dosheader(self):
 		if (not(self.dos_header)):
 		   return None
