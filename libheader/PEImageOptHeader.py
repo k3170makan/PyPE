@@ -182,7 +182,7 @@ class PEImageOptHeader:
 				try:
 					subj = [subj[0],subj[1],self.header_subsversions[subj[2]]]
 					_spaces = spaces(line_length=30,subject=len(subj),predicate=len(pred))
-					doc_string  += pred % (subj[0],_spaces,subj[1],self.header_subsversions[subj[2]])
+					doc_string  += pred % (subj[0],_spaces,subj[1],subj[2])
 				except KeyError: #TODO should add unique handling for funny values late
 					doc_string += sent	
 			elif (field == "DLLCharacteristics"):

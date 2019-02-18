@@ -118,6 +118,11 @@ class PEHeader:
 		index = self.header_fields.index("Characteristics") 
 		return self.attribute_list[index]
 
+	def get_numberofrvaandsizes(self):
+		index = self.header_fields.index("NumberOfRvaAndSizes")
+		return self.attribute_list[index]
+
+
 	"""
 		Parse out a DOSHeader.attribute_list straight from a binary file
 		def build_from_binary(
@@ -194,7 +199,9 @@ class PEHeader:
 			subj = len("".join([field,hex(self.attribute_list[index][1])]))
 			_spaces = spaces(line_length=40,predicate=pred,subject=subj)
 			doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
-			if (self.attribute_list[index][0] == "Characteristics" and len(self.attribute_list[index]) == 3):
+			if (self.attribute_list[index][0] == "Characteristics"\
+				 and len(self.attribute_list[index]) == 3):
+
 				doc_string += "\tCharacteristics:\n"
 				for charac in self.attribute_list[index][2]:
 					doc_string += "\t\t|-- [%s]\n" % (charac)
