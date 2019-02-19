@@ -6,6 +6,7 @@ import struct
 
 from Utils import spaces
 import DOSHeader
+import PEImageOptHeader
 import DOSHeaderDecoder
 import PEHeaderDecoder
 import PEDataDirDecoder
@@ -18,13 +19,22 @@ class PEDataDirHeader:
 	__PEDataDirHeader_fields = ["VirtualAddress",\
 							"Size"]
 
+	__PE32_offset = 96
+	__PE32_plus_offset = 112
+
 	def __init__(self,_opt_header=None):
 		self.attribute_list =  [  [("VirtualAddress",0),("Size",0)]   ] #array of data dir
-
 		self.opt_header = _opt_header
+
 		if (self.opt_header):
 			self.count = self.opt_header.get_numberofrvaandsizes()
-			self.set_offset(self.opt_header.len + self.opt_header.offset) 
+			#should check the PEOptHeaer
+			self.set_offset(self.opt_header.len + self.opt_header.offset)  #use upper header read lengths, then check if magic is set properly
+
+			if (_opt_header.is32Bit()):
+				self.set_offset(PEDataDirHeader().__PE32_plus_offset) 
+			else:
+				self.set_offset(PEDataDirHeader().__PE32_offset) 
 		self.header_fields = PEDataDirHeader.__PEDataDirHeader_fields 
 		self.header_fmt_dict = PEDataDirHeader.__PEDataDirHeader_fmt_dict
 
@@ -34,6 +44,7 @@ class PEDataDirHeader:
 			self.filename = _filename
 		opt_decoder = PEDataDirDecoder.Decoder(_filename=self.filename,\
 												_fileperms=self.fileperms)
+
 		opt_header,length = opt_decoder.decode(_start=self.offset,_count=self.count)
 		self.len = length
 		if (opt_header == None or self.count == 0):

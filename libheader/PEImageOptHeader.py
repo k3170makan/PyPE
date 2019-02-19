@@ -143,13 +143,18 @@ class PEImageOptHeader:
 		self.header_dllchars =\
 			 PEImageOptHeader.__PEImageOptHeader_dllchar_types
 
+	def get_magic(self):
+		return self.attribute_list[0]
+
 	def set_offset(self,_offset=0):
 		self.offset = _offset
 
 	def get_numberofrvaandsizes(self):
 		index = self.header_fields.index("NumberOfRvaAndSizes") #Camel script will save us!
-	
 		return self.attribute_list[index][1]
+
+	def is32bit(self):
+		return self.get_magic() == 0x10b
 
 	def build_from_peheader(self,pe_header=None):
 		self.filename = self.pe_header.filename
