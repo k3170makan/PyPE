@@ -71,6 +71,7 @@ class DOSHeader:
 		self.header_fields = DOSHeader.__DOSHeader_fields  
 		self.header_fmt_dict = DOSHeader.__DOSHeader_fmt_dict
 		self.len = 0		
+
 	def get_e_lfanew(self):
 		lfanew_index = self.header_fields.index("e_lfanew") #17 should be 17
 		return hex(self.attribute_list[lfanew_index][1])[:4]
@@ -108,3 +109,5 @@ class DOSHeader:
 			_spaces = spaces(predicate=pred,subject=subj)
 			doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
 		return doc_string
+
+
