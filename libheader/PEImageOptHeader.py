@@ -11,9 +11,9 @@ class PEImageOptHeader:
 	__PEImageOptHeader_magic_versions = {0x10B:"32 bit binary",\
 														0x20B:"64 bit binary"}
 	__PEImageOptHeader_subsys_types = {\
-					0 :"IMAGE_SUBSYSTEM_UNKNOWN ",\
-					1 :"IMAGE_SUBSYSTEM_NATIVE ",\
-					2 :"IMAGE_SUBSYSTEM_WINDOWS_GUI ",\
+					0 :"IMAGE_SUBSYSTEM_UNKNOWN",\
+					1 :"IMAGE_SUBSYSTEM_NATIVE",\
+					2 :"IMAGE_SUBSYSTEM_WINDOWS_GUI",\
 					3 :"IMAGE_SUBSYSTEM_WINDOWS_CUI ",\
 					5 :"IMAGE_SUBSYSTEM_OS2_CUI ",\
 					7 :"IMAGE_SUBSYSTEM_POSIX_CUI ",\
@@ -131,18 +131,23 @@ class PEImageOptHeader:
 
 		self.dos_header = _dos_header
 		if (self.dos_header):
-			self.offset = 16+8 + int(self.dos_header.get_e_lfanew(),16) #the PE_header is 20 bytes so far + flanew
-		self.header_fields = PEImageOptHeader.__PEImageOptHeader_fields  
-		self.header_fmt_dict = PEImageOptHeader.__PEImageOptHeader_fmt_dict
-		self.header_versions = PEImageOptHeader.__PEImageOptHeader_magic_versions
-		self.header_subsversions = PEImageOptHeader.__PEImageOptHeader_subsys_types
-		self.header_dllchars = PEImageOptHeader.__PEImageOptHeader_dllchar_types
+			self.offset = 16+8 + int(self.dos_header.get_e_lfanew(),16) #I don't know why this works at all
+		self.header_fields = \
+			PEImageOptHeader.__PEImageOptHeader_fields  
+		self.header_fmt_dict = \
+			 PEImageOptHeader.__PEImageOptHeader_fmt_dict
+		self.header_versions =\
+			 PEImageOptHeader.__PEImageOptHeader_magic_versions
+		self.header_subsversions =\
+			 PEImageOptHeader.__PEImageOptHeader_subsys_types
+		self.header_dllchars =\
+			 PEImageOptHeader.__PEImageOptHeader_dllchar_types
 
 	def set_offset(self,_offset=0):
 		self.offset = _offset
 
 	def get_numberofrvaandsizes(self):
-		index = self.header_fields.index("NumberOfRvaAndSizes")
+		index = self.header_fields.index("NumberOfRvaAndSizes") #Camel script will save us!
 	
 		return self.attribute_list[index][1]
 
@@ -174,35 +179,52 @@ class PEImageOptHeader:
 
 		for index,value in enumerate(optheader):
 
-			self.attribute_list[index] = (self.attribute_list[index][0],value)
+			self.attribute_list[index] = \
+				(self.attribute_list[index][0],value)
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):
+
 				for char in self.header_dllchars:
+
 					char_value = self.header_dllchars[char]
 					and_value = char_value & value
+
 					if (and_value):
+
 						if len(self.attribute_list[index]) == 3:
 							self.attribute_list[index][2].append(char)
-						else:
-							self.attribute_list[index] = (self.attribute_list[index][0],value,[char])
-		return self.attribute_list
 
+						else:
+							self.attribute_list[index] = \
+							(self.attribute_list[index][0],value,[char])
+		return self.attribute_list
 		
 	def __repr__(self):
 		doc_string = "\t\tPE Image Optional Header\n"
 		for index,field in enumerate(self.header_fields):
-			pred = "\t\t|- %s =>%s[%s : %s]\n"
+			pred = "\t\t|- %s => %s [%s : %s]\n"
 			value = self.attribute_list[index][1]
 			subj = [field,hex(value),value]
-			_spaces = spaces(line_length=30,predicate=len(pred),subject=len(subj))
+			line_space = 50
+
+			_spaces = spaces(line_length=line_space,\
+			predicate=len(pred),subject=len(subj))
+
 			sent = pred % (subj[0],_spaces,subj[1],subj[2])
 
 			if (field == "SubSystem"):
 				try:
-					subj = [subj[0],subj[1],self.header_subsversions[subj[2]]]
-					_spaces = spaces(line_length=30,subject=len(subj),predicate=len(pred))
-					doc_string  += pred % (subj[0],_spaces,subj[1],subj[2])
+
+					subj = [subj[0],subj[1],\
+							self.header_subsversions[subj[2]]]
+
+					_spaces = spaces(line_length=line_space,\
+							subject=len(subj),predicate=len(pred))
+
+					doc_string  += pred % (subj[0],_spaces\
+							,subj[1],subj[2])
+
 				except KeyError: 
-					doc_string += sent	
+					doc_string += sent
 
 			elif (field == "DLLCharacteristics"):
 				doc_string  += sent

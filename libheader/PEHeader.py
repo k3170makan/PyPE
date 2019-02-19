@@ -181,26 +181,32 @@ class PEHeader:
 	def __repr__(self):
 		doc_string = "\tPE header '%s'\n" % (self.filename)
 		for index,field in enumerate(self.header_fields):
-			pred = "\t|- %s => [%s]\n"
+			pred = "\t|- %s =>%s[%s]\n"
 			subj = "".join([field,hex(self.attribute_list[index][1])])
-			_spaces = spaces(line_length=40,predicate=len(pred),subject=len(subj))
-			subj = (field,hex(self.attribute_list[index][1]))
+			_spaces = spaces(line_length=50,\
+					predicate=len(pred),subject=len(subj))
+
+			subj = (field,_spaces,\
+					hex(self.attribute_list[index][1]))
 
 			if (self.attribute_list[index][0] == "Machine"):
 				field_name = self.attribute_list[index][0]
 				machine_type_value = self.attribute_list[index][1]
-				machine_type_desc = self.pe_machine_types[machine_type_value][1]
-				pred = "\t|- %s => [%s :'%s']\n"
-				_spaces = spaces(line_length=40,predicate=len(pred),subject=len(subj))
-				subj = (field_name,machine_type_value,\
-							machine_type_desc)
-				
-				doc_string += pred % (subj[0],subj[1],subj[2])
-				
+				machine_type_desc = self.pe_machine_types[machine_type_value][0]
+				pred = "\t|- %s =>%s[ %s:'%s' ]\n"
+
+				_spaces = spaces(line_length=50,\
+					predicate=len(pred),subject=len(subj))
+
+				subj = (field_name,_spaces,\
+							machine_type_value,machine_type_desc)
+
+				doc_string += pred % (subj[0],subj[1],subj[2],subj[3])
+
 			elif (self.attribute_list[index][0] == "Characteristics"\
 				 and len(self.attribute_list[index]) == 3):
-
 				doc_string += "\tCharacteristics:\n"
+
 				for charac in self.attribute_list[index][2]:
 					doc_string += "\t\t|-- [%s]\n" % (charac)
 			else:

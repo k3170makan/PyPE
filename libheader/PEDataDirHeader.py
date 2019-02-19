@@ -42,7 +42,7 @@ class PEDataDirHeader:
 		for index,value in enumerate(opt_header):#might need to undo this hack one day lol
 				try:
 					for dir_index,datadir in enumerate(value):
-						VirtualAddress_name = self.attribute_list[dir_index][0][0]
+						VirtualAddress_name = self.attribute_list[dir_index][0][0] #the data struture choice a messy choice here at best
 						VirtualAddress_value = self.attribute_list[dir_index][0][1]
 						Size_name = self.attribute_list[dir_index][1][0]
 						Size_value = self.attribute_list[dir_index][1][1]
