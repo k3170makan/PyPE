@@ -22,12 +22,13 @@ class Decoder:
 		self.fileperms = _fileperms 	
 	def decode(self,_start=0):
 		self.decoded_file = None
-		print(_start)
+		self.len = 0
 		with open(self.original_file,self.fileperms) as raw_pe:
-			raw_pe.read(_start) #skip to optional header
+			self.len = len(raw_pe.read(_start)) #skip to optional header
 			_bytes = raw_pe.read(self.fmt_len)
+			self.len += len(_bytes)
 			self.decoded_file = struct.unpack(self.fmt,_bytes)
-		return self.decoded_file
+		return self.decoded_file,self.len
 
 	def decode_field(self,index):
 		return self.fields[index]

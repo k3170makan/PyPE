@@ -5,6 +5,7 @@ import argparse
 import struct
 import DOSHeader
 import PEHeader
+import PEDataDirHeader
 import PEImageOptHeader
 
 if __name__ == "__main__":
@@ -26,7 +27,11 @@ if __name__ == "__main__":
 	imgopt_header = PEImageOptHeader.PEImageOptHeader(dos_header)
 	imgopt_header.build_from_dosheader()	
 
+	#pe_datadir = PEDataDirHeader.PEDataDirHeader(_opt_header=imgopt_header)
+	#pe_datadir.build_from_optheader()
+
 	print(dos_header)
 	print(pe_header)
 	print(imgopt_header)
+	#print(pe_datadir)
 

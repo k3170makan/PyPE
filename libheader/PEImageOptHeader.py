@@ -138,22 +138,13 @@ class PEImageOptHeader:
 		self.header_subsversions = PEImageOptHeader.__PEImageOptHeader_subsys_types
 		self.header_dllchars = PEImageOptHeader.__PEImageOptHeader_dllchar_types
 
-	def build_from_binary(self,_filename,_fileperms="rb"):
-		self.filename = _filename
-		self.fileperms = _fileperms
-
-		optheader = PEImageOptHeaderDecoder.Decoder(_filename=_filename,\
-												_fileperms=_fileperms)
-		for index,value in \
-				enumerate(optheader.decode(_start=self.offset)[:len(self.header_fields)]):#HACK might need to undo this hack one day lol
-			self.attribute_list[index] = \
-					(self.attribute_list[index][0],\
-					value)
-
-		return self.attribute_list	
-	
 	def set_offset(self,_offset=0):
 		self.offset = _offset
+
+	def get_numberofrvaandsizes(self):
+		index = self.header_fields.index("NumberOfRvaAndSizes")
+	
+		return self.attribute_list[index][1]
 
 	def build_from_peheader(self,pe_header=None):
 		self.filename = self.pe_header.filename
@@ -178,8 +169,10 @@ class PEImageOptHeader:
 
 		optheader_decoder = PEImageOptHeaderDecoder.Decoder(_filename=self.filename,\
                                          _fileperms=self.fileperms)
-		optheader = optheader_decoder.decode(_start=self.offset)
-		for index,value in enumerate(optheader)	:
+		optheader,length = optheader_decoder.decode(_start=self.offset)
+		self.len = length
+
+		for index,value in enumerate(optheader):
 
 			self.attribute_list[index] = (self.attribute_list[index][0],value)
 			if (self.attribute_list[index][0] == "DLLCharacteristics"):

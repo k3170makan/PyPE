@@ -8,49 +8,49 @@ from Utils import spaces
 import DOSHeader
 import DOSHeaderDecoder
 import PEHeaderDecoder
+import PEDataDirDecoder
 
 class PEDataDirHeader:
 	
-	__PEHeader_fmt_dict = {\
+	__PEDataDirHeader_fmt_dict = {\
 							"VirtualAddress":"I",\
 							"Size":"I"}
-	__PEHeader_fields = ["VirtualAddress",\
+	__PEDataDirHeader_fields = ["VirtualAddress",\
 							"Size"]
 
-	def __init__(self,_pe_header=None):
-		self.attribute_list =  [("VirtualAddress",0),\
-						("Size",0)] 
+	def __init__(self,_opt_header=None):
+		self.attribute_list =  [  [("VirtualAddress",0),("Size",0)]   ] #array of data dir
 
-		self.pe_header = _pe_header
-		if (self.pe_header):
-			self.set_offset(pe_header.len + pe_header.offset) 
-
+		self.opt_header = _opt_header
+		if (self.opt_header):
+			self.count = self.opt_header.get_numberofrvaandsizes()
+			self.set_offset(self.opt_header.len + self.opt_header.offset) 
 		self.header_fields = PEDataDirHeader.__PEDataDirHeader_fields 
 		self.header_fmt_dict = PEDataDirHeader.__PEDataDirHeader_fmt_dict
 
-	"""
-		Parse out a DOSHeader.attribute_list straight from a binary file
-		def build_from_binary(
-				,_filename 				--- filename to parse DOSHeader from
-				,_fileperms="rb"		--- fileperms to access file under
-
-		Returns 
-			self.attribute_list a list of tuples [("field name",decimal value),...]
-
-	"""
-	def build_from_binary(self,_filename,_fileperms="rb"):
-	
-		peheader,length = PEHeaderDecoder.Decoder(_filename=_filename,\
-														_fileperms=_fileperms)
-
-		pedecoder = PEHeaderDecoder.Decoder(_filename=self.filename,\
+	def build_from_binary(self,_filename="",_fileperms="rb"):
+		
+		if (_filename != ""):
+			self.filename = _filename
+		opt_decoder = PEDataDirDecoder.Decoder(_filename=self.filename,\
 												_fileperms=self.fileperms)
-		peheader,length = pedecoder.decode(_start=self.offset)[:len(self.attribute_list)]
+		opt_header,length = opt_decoder.decode(_start=self.offset,_count=self.count)
 		self.len = length
+		if (opt_header == None or self.count == 0):
+			return self.attribute_list
 
-		for index,value in enumerate(peheader):#might need to undo this hack one day lol
-
-				self.attribute_list[index] = (self.attribute_list[index][0],value)	
+		for index,value in enumerate(opt_header):#might need to undo this hack one day lol
+				try:
+					for dir_index,datadir in enumerate(value):
+						VirtualAddress_name = self.attribute_list[dir_index][0][0]
+						VirtualAddress_value = self.attribute_list[dir_index][0][1]
+						Size_name = self.attribute_list[dir_index][1][0]
+						Size_value = self.attribute_list[dir_index][1][1]
+						
+						self.attribute_list[dir_index] = [(VirtualAddress_name,VirtualAddress_value),\
+																(Size_name,Size_value)]
+				except IndexError:
+					return self.attribute_list
 		return self.attribute_list
 
 	def get_offset(self):
@@ -58,21 +58,23 @@ class PEDataDirHeader:
 	def set_offset(self,_offset):
 		self.offset = _offset
 
-	def build_from_peheader(self):
-		if (not(self.pe_header)):
+	def build_from_optheader(self):
+		if (not(self.opt_header)):
 			return None	
 
-		self.filename = self.pe_header.filename
-		self.fileperms = self.pe_header.fileperms
-		self.offset = self.pe_header.offset + self.pe_header.len
+		self.filename = self.opt_header.filename
+		self.fileperms = self.opt_header.fileperms
+		self.offset = self.opt_header.offset + self.opt_header.len
+		self.count = self.opt_header.get_numberofrvaandsizes()
+	
 		return self.build_from_binary()
 
 	def __repr__(self):
 		doc_string = "\tData Directory\n"
-		for index,field in enumerate(self.header_fields):
-			pred = len("\t|- %s => [%s]\n")
-			subj = len("".join([field,hex(self.attribute_list[index][1])]))
-			_spaces = spaces(line_length=30,predicate=pred,subject=subj)
-
-			doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
+		#for index,field in enumerate(self.header_fields):
+		#	pred = len("\t|- %s => [%s]\n")
+		#	subj = (field,hex(self.attribute_list[index][1]))
+		#	_spaces = spaces(line_length=30,predicate=pred,subject=subj)
+		#	doc_string += "\t|- %s =>%s[%s]\n" % (field,_spaces,hex(self.attribute_list[index][1]))
+		doc_string += "".join([datadir.__repr__() for datadir in  self.attribute_list])
 		return doc_string
